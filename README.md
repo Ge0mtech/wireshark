@@ -1,8 +1,8 @@
-# Documentation Wireshark
+# Documentation Wireshark 
 
 ## Introduction
 
-**Wireshark** est un analyseur de paquets réseau open source permettant de capturer et d’analyser les trames circulant sur un réseau en temps réel. Il prend en charge de nombreux protocoles et propose des outils de filtrage avancés pour faciliter l’analyse du trafic. Ce projet explore les fonctionnalités de Wireshark, les protocoles réseau tels que ARP, UDP et TCP, ainsi que les formats de capture comme PCAP et PCAPNG.
+**Wireshark** est un outil gratuit qui permet de regarder ce qui se passe dans un réseau informatique en temps réel. Imaginez-le comme une loupe qui vous aide à voir les messages (ou "paquets") envoyés entre les ordinateurs, les routeurs ou tout autre appareil connecté. Il est utile pour repérer des problèmes réseau, apprendre comment les réseaux fonctionnent ou analyser le trafic.
 
 ---
 
@@ -10,106 +10,83 @@
 
 ### 1. Différence entre trame et paquet
 
-Dans le domaine des réseaux, une **trame** et un **paquet** sont des unités de données distinctes, correspondant à différentes couches du modèle OSI :
+Quand des données circulent dans un réseau, elles sont divisées en petites unités appelées **trames** et **paquets**. Voici la différence, expliquée simplement :
 
-| **Élément**        | **Couche OSI**              | **Contenu**                                                                 |
-|--------------------|-----------------------------|-----------------------------------------------------------------------------|
-| **Trame (Frame)**  | Liaison de données (Couche 2) | - Adresses MAC source et destination <br> - En-tête Ethernet <br> - Données encapsulées |
-| **Paquet (Packet)**| Réseau (Couche 3)           | - Adresses IP source et destination <br> - En-tête IP (TTL, protocole, etc.) |
+- **Trame** : C’est comme une enveloppe qui contient les données. Elle indique les adresses physiques (MAC) de l’appareil qui envoie et de celui qui reçoit. Elle fonctionne au niveau "local", comme un facteur qui livre dans votre quartier.
+- **Paquet** : C’est ce qu’il y a dans l’enveloppe, avec les adresses IP (comme une adresse postale) qui montrent d’où viennent les données et où elles vont.
 
-**Exemple** :
-- **Trame** : `34:27:92:45:42:8b → 00:0c:29:fc:e1:ce`
-- **Paquet** : `192.168.1.81 → 192.168.1.254`
+**Exemple** :  
+- Une trame dit : "De l’appareil A à l’appareil B" (avec leurs adresses MAC).  
+- Un paquet dit : "De 192.168.1.81 à 192.168.1.254" (avec leurs adresses IP).
 
 ---
 
-### 2. Formats PCAP vs PCAPNG
+### 2. Formats PCAP et PCAPNG
 
-Wireshark utilise deux formats principaux pour enregistrer les captures réseau :
+Wireshark enregistre ce qu’il voit dans deux types de fichiers :
 
-| **Format** | **Description**                                      | **Avantages**                              |
-|------------|------------------------------------------------------|--------------------------------------------|
-| **PCAP**   | Format historique pour les captures réseau           | Compatibilité avec de nombreux outils      |
-| **PCAPNG** | Version améliorée, successeur de PCAP                | Supporte les métadonnées (interfaces, timestamps précis, etc.) |
+- **PCAP** : L’ancien format, simple et compatible avec presque tous les outils d’analyse réseau.
+- **PCAPNG** : Une version plus moderne qui peut stocker plus de détails, comme l’heure exacte ou des infos sur votre connexion.
+
+**En bref** : PCAP est basique et universel, PCAPNG est plus riche en informations.
 
 ---
 
 ### 3. Capture des paquets
 
-#### Configuration initiale
+Pour voir le trafic réseau avec Wireshark, suivez ces étapes simples :
 
-Pour capturer des paquets, Wireshark doit souvent être lancé avec des privilèges administrateurs pour accéder aux interfaces réseau :
+1. Ouvrez Wireshark (parfois, il faut être administrateur sur votre ordinateur).
+2. Choisissez la connexion à surveiller (par exemple, Wi-Fi ou câble Ethernet).
+3. Cliquez sur "Démarrer" pour commencer à capturer.
 
-```bash
-sudo wireshark
-```
+#### Filtres pour simplifier
 
-Sélectionnez ensuite l’interface réseau appropriée (ex. : `eth0`, `ens33`) pour démarrer la capture.
+Vous pouvez choisir ce que vous voulez voir :
 
-#### Filtres de capture courants
+- **ARP** : Pour repérer qui demande des adresses dans le réseau.
+- **UDP** : Pour suivre des données rapides, comme une vidéo en streaming.
+- **TCP** : Pour voir des connexions stables, comme un site web ou un téléchargement.
 
-Wireshark permet de filtrer le trafic capturé selon les protocoles :
+#### Exemples concrets
 
-| **Protocole** | **Filtre** | **Exemple d'utilisation**            |
-|---------------|------------|--------------------------------------|
-| ARP           | `arp`      | Analyse des résolutions d'adresses   |
-| UDP           | `udp`      | Surveillance de flux en temps réel   |
-| TCP           | `tcp`      | Suivi des connexions HTTP/FTP        |
-
-#### Exemples de captures
-
-- **Requête ARP** :
-  ```plaintext
-  FreeboxS_45:42:8b → VMware_fc:el:ce : "Who has 192.168.1.81? Tell 192.168.1.254"
-  ```
-- **Réponse ARP** :
-  ```plaintext
-  VMware_fc:el:ce → FreeboxS_45:42:8b : "192.168.1.81 is at 00:0c:29:fc:e1:ce"
-  ```
+- **Demande ARP** : Un appareil dit "Qui a l’adresse IP 192.168.1.81 ? Répondez à 192.168.1.254 !".
+- **Réponse ARP** : Un autre répond "C’est moi, et voici mon adresse MAC !".
 
 ---
 
 ### 4. Désencapsulation et modèle OSI
 
-Les trames capturées peuvent être analysées pour observer l’encapsulation des données à travers les couches du modèle OSI. Exemple pour une trame UDP :
+Les données dans un réseau sont comme des poupées russes : elles sont emballées dans plusieurs couches. Wireshark vous permet de les "déballer" pour voir :
 
-```plaintext
-Ethernet II (Couche 2) → IP (Couche 3) → UDP (Couche 4) → Données applicatives (Couche 7)
-```
+- **Couche 2** : Les adresses MAC (l’enveloppe).
+- **Couche 3** : Les adresses IP (l’adresse sur l’enveloppe).
+- **Couche 4** : Comment les données voyagent (TCP ou UDP, comme le mode d’envoi).
+- **Couche 7** : Le contenu réel (comme une lettre ou une vidéo).
 
-**Analyse hexadécimale** d’une trame UDP :
-
-```plaintext
-0000   34 27 92 45 42 80 00 0c 29 fc e1 ce 08 00 45 00  # En-tête Ethernet + IP
-0010   00 25 c1 c5 40 00 40 11 f4 62 c0 a8 01 51 c0 a8  # En-tête UDP
-0020   01 fe e9 34 00 50 00 11 84 c2 54 65 73 74 20 55  # Données ("Test UDP")
-```
+En regardant une trame, vous pouvez voir toutes ces couches s’emboîter.
 
 ---
 
-### 5. Tableau d'adresses MAC/IP
+### 5. Tableau d’adresses MAC/IP
 
-Un suivi des adresses MAC et IP est utile lors de l’analyse des trames :
+Voici un tableau simple pour suivre qui parle à qui dans une capture :
 
-| **Type**       | **MAC Source**          | **IP Source**      | **MAC Destination**     | **IP Destination**   |
-|----------------|-------------------------|--------------------|-------------------------|----------------------|
-| Requête ARP    | `FreeboxS_45:42:8b`     | `192.168.1.254`    | `VMware_fc:el:ce`       | `192.168.1.81`      |
-| Réponse ARP    | `VMware_fc:el:ce`       | `192.168.1.81`     | `FreeboxS_45:42:8b`     | `192.168.1.254`     |
-| Paquet UDP     | `VMware_fc:el:ce`       | `192.168.1.81`     | `FreeboxS_45:42:8b`     | `192.168.1.254:80`  |
+| **Type**       | **Adresse MAC émetteur** | **IP émetteur** | **Adresse MAC destinataire** | **IP destinataire** |
+|----------------|--------------------------|-----------------|-----------------------------|---------------------|
+| Demande ARP    | `FreeboxS_45:42:8b`      | `192.168.1.254` | `VMware_fc:el:ce`           | `192.168.1.81`      |
+| Réponse ARP    | `VMware_fc:el:ce`        | `192.168.1.81`  | `FreeboxS_45:42:8b`         | `192.168.1.254`     |
+| Paquet UDP     | `VMware_fc:el:ce`        | `192.168.1.81`  | `FreeboxS_45:42:8b`         | `192.168.1.254:80`  |
+
+Chaque ligne montre une "conversation" entre deux appareils.
 
 ---
 
 ### 6. Protocoles complémentaires
 
-En plus d’ARP, UDP et TCP, Wireshark peut analyser d’autres protocoles comme **ICMP** :
+Wireshark peut aussi voir d’autres protocoles, comme **ICMP** :
 
-- **ICMP (Internet Control Message Protocol)** :
-  - **Fonction** : Vérifie la connectivité réseau (ex. : avec `ping`).
-  - **Exemple** :
-    ```plaintext
-    192.168.1.254 → 192.168.1.81 : Echo (ping) request
-    192.168.1.81 → 192.168.1.254 : Echo (ping) reply
-    ```
+- **ICMP** : C’est comme un test pour vérifier si un appareil répond. Par exemple, quand vous utilisez `ping`, ICMP envoie une question ("Es-tu là ?") et attend une réponse ("Oui, je suis là !").
 
 ---
 
@@ -117,34 +94,21 @@ En plus d’ARP, UDP et TCP, Wireshark peut analyser d’autres protocoles comme
 
 #### ARP (Address Resolution Protocol)
 
-ARP mappe une adresse IP à une adresse MAC dans un réseau local.
+ARP aide les appareils à se trouver dans un réseau local, comme un annuaire qui donne l’adresse physique (MAC) à partir d’une adresse IP.
 
-**Structure d’une trame ARP** :
-
-| **Champ**             | **Description**                      |
-|-----------------------|--------------------------------------|
-| MAC Source            | Adresse physique de l’émetteur       |
-| IP Source             | Adresse logique de l’émetteur        |
-| MAC Destination       | `ff:ff:ff:ff:ff:ff` (broadcast) pour les requêtes |
-| IP Destination        | Adresse IP cible                     |
-| Opcode                | `1` (Requête) ou `2` (Réponse)       |
-
-**Exemple** :
-- **Requête ARP** : `Who has 192.168.1.81? Tell 192.168.1.254`
-- **Réponse ARP** : `192.168.1.81 is at 00:0c:29:fc:e1:ce`
+**Exemple** :  
+- Demande : "Qui a 192.168.1.81 ? Dites-le à 192.168.1.254 !"  
+- Réponse : "C’est moi, et mon adresse MAC est 00:0c:29:fc:e1:ce."
 
 #### Three-Way Handshake TCP
 
-Le **Three-Way Handshake** établit une connexion TCP fiable :
+TCP utilise une "poignée de main" en trois étapes pour démarrer une connexion fiable (par exemple, pour charger une page web) :
 
-| **Étape**         | **Flags**     | **Séquence** | **Accusé** | **Direction**         |
-|--------------------|---------------|--------------|------------|-----------------------|
-| SYN (Client)      | `SYN`         | 0            | –          | Client → Serveur      |
-| SYN-ACK (Serveur) | `SYN, ACK`    | 0            | 1          | Serveur → Client      |
-| ACK (Client)      | `ACK`         | 1            | 1          | Client → Serveur      |
-| FIN (Serveur)     | `FIN, PSH, ACK` | 421         | 608        | Serveur → Client      |
-| FIN (Client)      | `FIN, ACK`    | 608          | 422        | Client → Serveur      |
-| ACK Final         | `ACK`         | 422          | 609        | Serveur → Client      |
+1. Le client dit : "Salut, je veux me connecter !"  
+2. Le serveur répond : "OK, connectons-nous !"  
+3. Le client confirme : "Parfait, c’est parti !"
+
+Une fois ces étapes terminées, les données peuvent circuler sans problème.
 
 ---
 
@@ -152,50 +116,40 @@ Le **Three-Way Handshake** établit une connexion TCP fiable :
 
 ### 1. Capture de protocoles spécifiques
 
-Wireshark permet d’analyser des protocoles complexes utilisés dans des contextes professionnels :
+Wireshark peut analyser des protocoles plus complexes :
 
-| **Protocole** | **Filtre** | **Cas d'usage**                     |
-|---------------|------------|-------------------------------------|
-| DHCP          | `dhcp`     | Attribution d’adresses IP dynamiques|
-| DNS           | `dns`      | Résolution de noms de domaine       |
-| FTP           | `ftp`      | Transfert de fichiers (non sécurisé)|
-| SMB           | `smb`      | Partage de ressources Windows       |
+- **DHCP** : Donne automatiquement une adresse IP aux appareils (comme un employé qui attribue un bureau).
+- **DNS** : Transforme un nom comme "google.com" en adresse IP (comme un annuaire pour sites web).
+- **FTP** : Envoie des fichiers, mais sans protection.
+- **SMB** : Partage des fichiers ou imprimantes dans un réseau Windows.
 
-#### Risques de sécurité avec FTP
+#### Risques avec FTP
 
-FTP transmet les données en clair, exposant les identifiants :
+FTP n’est pas sécurisé : il envoie les mots de passe en clair. Par exemple, si vous entrez "admin" et "1234", quelqu’un peut les voir avec Wireshark. C’est comme écrire votre mot de passe sur une affiche !
 
-**Exemple** :
-```plaintext
-USER admin      # Hex: 55 53 45 52 20 61 64 6d 69 6e
-PASS 1234       # Hex: 50 41 53 53 20 31 32 33 34
-```
-> **Attention** : Les identifiants sont visibles sans chiffrement.
+**Solution** : Utilisez **SFTP** ou **FTPS**, qui protègent vos données.
 
 #### SSL/TLS
 
-Les protocoles comme **SSL/TLS** (HTTPS, FTPS) chiffrent les données, mais Wireshark ne peut pas les déchiffrer sans la clé privée.
+**SSL/TLS** (comme dans HTTPS) rend les données illisibles pour ceux qui n’ont pas la clé secrète. Wireshark peut voir qu’il y a du trafic, mais pas ce qu’il contient.
 
 ---
 
 ## Partie 3 : Automatisation avec Tshark
 
-**Tshark**, la version en ligne de commande de Wireshark, permet d’automatiser les captures et analyses.
+**Tshark** est une version de Wireshark qui fonctionne sans interface graphique, idéale pour automatiser des tâches.
 
 ### 1. Installation
 
-Sur Debian/Ubuntu :
+Sur Linux (comme Ubuntu), installez-le avec :  
 ```bash
 sudo apt install tshark
 ```
 
-### 2. Commandes utiles
+### 2. Commandes simples
 
-| **Objectif**          | **Commande**                                      |
-|-----------------------|---------------------------------------------------|
-| Capture ARP           | `tshark -i <interface> -f "arp"`                 |
-| Capture UDP           | `tshark -i <interface> -f "udp"`                 |
-| Capture DNS           | `tshark -i <interface> -f "port 53"`             |
-| Extraction de métadonnées | `tshark -r capture.pcap -T fields -e ip.src`     |
+- Voir les demandes ARP : `tshark -i <interface> -f "arp"`  
+- Capturer du trafic UDP : `tshark -i <interface> -f "udp"`  
+- Surveiller le DNS : `tshark -i <interface> -f "port 53"`
 
----
+Tshark est parfait pour des analyses rapides ou programmées.
